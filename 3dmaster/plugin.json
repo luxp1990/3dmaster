@@ -1,0 +1,27 @@
+{
+  "name": "3dmaster",
+  "version": "1.0.0",
+  "type": "dll",
+  "roles": [
+    "viewer"
+  ],
+  "entry": "3dmaster.dll",
+  "args": [],
+  "formats": [
+    "stl",
+    "obj",
+    "ply",
+    "step",
+    "stp",
+    "iges",
+    "igs",
+    "gltf",
+    "glb",
+    "3mf",
+    "off"
+  ],
+  "appMinVersion": "4.2.9",
+  "author": "3dmaster",
+  "description": "3dmaster 高性能 3D 模型预览插件 (支持真多线程异步加载与材质色彩渲染)",
+  "releaseDate": "2026-09-08"
+}

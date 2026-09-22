@@ -1,0 +1,97 @@
+# ========================================
+# 3dmaster .gitignore
+# ========================================
+
+# === 构建产物 (Build Artifacts) ===
+build/
+bin/
+obj/
+*.dll
+*.exe
+*.lib
+*.exp
+*.pdb
+*.ilk
+*.obj
+*.o
+*.a
+*.so
+*.dylib
+
+# === 三方依赖目录 (Third-party Dependencies) ===
+# 这些需要用户自行下载配置，不纳入版本控制
+occt/
+qt6/
+Seer-sdk/
+.venv/
+
+# === 压缩包 ===
+3rdparty.zip
+*.qlplugin
+
+# === 临时脚本与文件 (Temp Scripts & Files) ===
+*.py
+*.log
+*.old
+*.bak
+*.old_*
+grok_*.txt
+grok_*.md
+occt_stdout.txt
+occt_stderr.txt
+seer_runtime.log
+aqtinstall.log
+
+# === 测试截图 (Test Screenshots) ===
+test_*.png
+
+# === Seer 运行时文件 ===
+3dmaster.ini
+
+# === 大型测试模型 ===
+test_models/main_assembly.stp
+
+# === 编辑器与 IDE ===
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.sln
+CMakeSettings.json
+CMakePresets.json
+
+# === 系统文件 ===
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# === 杂项 ===
+.handoff.json
+TASK.json
+SOURCE_CODE_AUDIT.md
+task_progress.md
+f3d.def
+f3d.exp
+f3d.lib
+f3dviewer/
+plan/
+
+# === 旧版备份文件 ===
+*.legacy_bak
+
+# === 内部文档（非公开） ===
+3dmaster/docs/
+
+# === 测试日志 ===
+**/test_log.txt
+
+# === 内部部署脚本 ===
+3dmaster/update_plugin.bat
+
+# === 内部测试模型渲染截图 ===
+3dmaster/test_models/*.png
+
+# === QuickLook 临时测试脚本 ===
+3dmaster-quicklook/check_windows.ps1
+3dmaster-quicklook/test_*.py
