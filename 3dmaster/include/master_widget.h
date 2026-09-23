@@ -109,6 +109,8 @@ private:
     void drawBoundingBoxDimensions(QPainter& painter);
     void drawLoadingSpinner(QPainter& painter);
     void drawErrorMessage(QPainter& painter);
+    float minCameraDistance() const;
+    float maxCameraDistance() const;
 
 private:
     ModelDataPtr m_model;

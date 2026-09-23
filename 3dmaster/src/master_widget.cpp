@@ -726,6 +726,20 @@ void MasterWidget::buildBuffers() {
     updateGridBuffer();
 }
 
+float MasterWidget::minCameraDistance() const {
+    if (m_model && m_model->boundingRadius > 1e-4f) {
+        return std::max(0.001f, m_model->boundingRadius * 0.005f);
+    }
+    return 0.01f;
+}
+
+float MasterWidget::maxCameraDistance() const {
+    if (m_model && m_model->boundingRadius > 1e-4f) {
+        return std::max(100000.0f, m_model->boundingRadius * 50.0f);
+    }
+    return 100000.0f;
+}
+
 void MasterWidget::updateProjectionMatrix() {
     int w = width();
     int h = height();
@@ -735,6 +749,9 @@ void MasterWidget::updateProjectionMatrix() {
     m_projMatrix.setToIdentity();
     float nearPlane = std::max(0.01f, m_cameraDistance * 0.005f);
     float farPlane = std::max(500.0f, m_cameraDistance * 50.0f);
+    if (m_model && m_model->boundingRadius > 1e-4f) {
+        farPlane = std::max(farPlane, (m_cameraDistance + m_model->boundingRadius) * 2.0f);
+    }
 
     if (m_orthographic) {
         float r = m_cameraDistance * 0.5f;
@@ -1384,7 +1401,7 @@ void MasterWidget::mouseMoveEvent(QMouseEvent* event) {
         // 动态光标缩放：垂直拖动，向上为放大，向下为缩小
         float zoomFactor = 1.0f + static_cast<float>(dy) * 0.006f;
         zoomFactor = std::clamp(zoomFactor, 0.5f, 2.0f);
-        m_cameraDistance = std::clamp(m_cameraDistance * zoomFactor, 0.01f, 100000.0f);
+        m_cameraDistance = std::clamp(m_cameraDistance * zoomFactor, minCameraDistance(), maxCameraDistance());
         updateProjectionMatrix();
         update();
     }
@@ -1452,7 +1469,7 @@ void MasterWidget::wheelEvent(QWheelEvent* event) {
     QVector3D pWorld = getCursorWorldPointOnFocusPlane(mousePos);
 
     float oldDist = m_cameraDistance;
-    float newDist = std::clamp(oldDist * factor, 0.01f, 100000.0f);
+    float newDist = std::clamp(oldDist * factor, minCameraDistance(), maxCameraDistance());
 
     // 锚定光标点屏幕位置不发生偏移：T_new = T_old + (P_world - T_old) * (1 - newDist / oldDist)
     float ratio = newDist / oldDist;

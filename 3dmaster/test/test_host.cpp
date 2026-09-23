@@ -10,6 +10,8 @@
 #include <QImage>
 #include <QFile>
 #include <QTextStream>
+#include <QWheelEvent>
+#include <QOpenGLWidget>
 #include <iostream>
 #include "seer/viewerbase.h"
 
@@ -172,10 +174,26 @@ int main(int argc, char* argv[]) {
                             break;
                         }
                     }
+                    return;
+                } else if (argc > 3 && QString::fromLocal8Bit(argv[3]) == "zoomout") {
+                    QWidget* glWidget = viewer->findChild<QOpenGLWidget*>();
+                    if (glWidget) {
+                        for (int i = 0; i < 15; ++i) {
+                            QWheelEvent wheelEv(QPointF(glWidget->width() / 2.0, glWidget->height() / 2.0),
+                                                glWidget->mapToGlobal(QPoint(glWidget->width() / 2, glWidget->height() / 2)),
+                                                QPoint(0, 0),
+                                                QPoint(0, -120),
+                                                Qt::NoButton,
+                                                Qt::NoModifier,
+                                                Qt::ScrollUpdate,
+                                                false);
+                            QApplication::sendEvent(glWidget, &wheelEv);
+                        }
+                    }
                     QTimer::singleShot(350, [&]() {
                         QImage screenshot = viewer->grab().toImage();
                         screenshot.save(screenshotPath);
-                        qDebug() << "[Test Host] PASS: Front View after camera animation saved to" << screenshotPath;
+                        qDebug() << "[Test Host] PASS: Zoomed out screenshot saved to" << screenshotPath;
                         exitCode = 0;
                         app.quit();
                     });
