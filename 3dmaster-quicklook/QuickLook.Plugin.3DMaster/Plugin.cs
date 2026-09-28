@@ -72,10 +72,12 @@ namespace QuickLook.Plugin.ThreeDMaster
                 context.Title = Path.GetFileName(path);
 
                 long genId = DaemonClient.NextGenerationId();
+                bool callbackFired = false;
 
                 _loadCallback = (finishedGenId, ok, errMsg) =>
                 {
                     if (finishedGenId != genId) return;
+                    callbackFired = true;
 
                     var disp = _host?.Dispatcher ?? Application.Current?.Dispatcher;
                     if (disp != null && !disp.HasShutdownStarted)
@@ -85,7 +87,7 @@ namespace QuickLook.Plugin.ThreeDMaster
                             context.IsBusy = false;
                             if (!ok && !string.IsNullOrEmpty(errMsg))
                             {
-                                context.Title = $"{Path.GetFileName(path)} (加载失败: {errMsg})";
+                                context.Title = $"{Path.GetFileName(path)} ({errMsg})";
                             }
                         }));
                     }
@@ -97,6 +99,20 @@ namespace QuickLook.Plugin.ThreeDMaster
 
                 DaemonClient.ModelLoadFinished += _loadCallback;
                 DaemonClient.SendLoad(path, genId);
+
+                // 5秒守护进程状态看门狗：防止后台异常退出导致前台无限转圈
+                System.Threading.Tasks.Task.Delay(5000).ContinueWith(t =>
+                {
+                    if (!callbackFired && DaemonClient.State == DaemonConnectionState.Dead)
+                    {
+                        var disp = _host?.Dispatcher ?? Application.Current?.Dispatcher;
+                        disp?.BeginInvoke(new Action(() =>
+                        {
+                            context.IsBusy = false;
+                            context.Title = $"{Path.GetFileName(path)} (3dmaster 预览引擎启动失败，请检查运行库)";
+                        }));
+                    }
+                });
             }
             catch (Exception ex)
             {

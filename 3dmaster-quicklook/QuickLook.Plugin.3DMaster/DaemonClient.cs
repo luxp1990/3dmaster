@@ -261,11 +261,8 @@ namespace QuickLook.Plugin.ThreeDMaster
             };
 
             string exeDir = Path.GetDirectoryName(exePath);
-            string qtBin = @"D:\seer\3dmaster\qt6\6.8.2\msvc2022_64\bin";
-            string occtBin = @"D:\seer\3dmaster\occt\win64\vc14\bin";
-            string originalDir = @"D:\seer\3dmaster\3dmaster";
             string curPath = Environment.GetEnvironmentVariable("PATH") ?? "";
-            psi.EnvironmentVariables["PATH"] = $"{exeDir};{Path.Combine(exeDir, "platforms")};{qtBin};{occtBin};{originalDir};{curPath}";
+            psi.EnvironmentVariables["PATH"] = $"{exeDir};{Path.Combine(exeDir, "platforms")};{curPath}";
             psi.EnvironmentVariables["QT_QPA_PLATFORM_PLUGIN_PATH"] = Path.Combine(exeDir, "platforms");
 
             return Process.Start(psi);
@@ -278,9 +275,13 @@ namespace QuickLook.Plugin.ThreeDMaster
             if (File.Exists(localExe))
                 return localExe;
 
-            string fallbackExe = @"D:\seer\3dmaster\3dmaster-quicklook\3dmaster-preview\build\Release\3dmaster-preview.exe";
-            if (File.Exists(fallbackExe))
-                return fallbackExe;
+            string subExe = Path.Combine(pluginDir, "3dmaster-native", "3dmaster-preview.exe");
+            if (File.Exists(subExe))
+                return subExe;
+
+            string devFallbackExe = @"D:\seer\3dmaster\3dmaster-quicklook\3dmaster-preview\build\Release\3dmaster-preview.exe";
+            if (File.Exists(devFallbackExe))
+                return devFallbackExe;
 
             return localExe;
         }
