@@ -128,14 +128,27 @@ cd 3dmaster-quicklook/QuickLook.Plugin.3DMaster
 1. 将 `3dmaster.dll` + OCCT 运行时 DLL (`TK*.dll`) + Qt6 运行时 DLL + `plugin.json` 放入 Seer 插件目录
 2. 重启 Seer
 
-### QuickLook 插件
+### QuickLook 插件（独立便携，免环境配置）
 
-1. 将 `3dmaster-preview.exe` + OCCT 运行时 DLL + Qt6 运行时 DLL 放入插件目录
-2. 将 `QuickLook.Plugin.ThreeDMaster.dll` + `QuickLook.Plugin.Metadata.config` 放入：
-   ```
-   %LocalAppData%\Packages\21090PaddyXu.QuickLook_egxr34yet59cg\LocalCache\Roaming\pooi.moe\QuickLook\QuickLook.Plugin\QuickLook.Plugin.ThreeDMaster\
-   ```
-3. 重启 QuickLook
+提供了两种分发包，包含完整的 Qt 6 与 OpenCASCADE 几何内核闭包，**在未安装任何开发环境、Qt 或 OCCT 的新电脑上均可直接使用**：
+
+- **方式一：`.qlplugin` 官方一键安装包**
+  1. 下载或打包生成 `QuickLook.Plugin.ThreeDMaster.qlplugin`。
+  2. 在文件资源管理器中选中该 `.qlplugin` 文件，按下 **空格键 (Space)**，点击出现的安装提示完成安装。
+  3. 重启 QuickLook 即可生效。
+
+- **方式二：便携压缩包手动解压**
+  1. 下载或打包生成 `QuickLook.Plugin.ThreeDMaster_Portable.zip`。
+  2. 解压其中的全部文件（包含 `QuickLook.Plugin.ThreeDMaster.dll`、`3dmaster-preview.exe`、`platforms/` 目录以及全部相关 DLL）至 QuickLook 插件目录：
+     - **Windows Store 版**：
+       ```
+       %LocalAppData%\Packages\21090PaddyXu.QuickLook_egxr34yet59cg\LocalCache\Roaming\pooi.moe\QuickLook\QuickLook.Plugin\QuickLook.Plugin.ThreeDMaster\
+       ```
+     - **普通安装版 / 便携版**：
+       ```
+       %AppData%\pooi.moe\QuickLook\QuickLook.Plugin\QuickLook.Plugin.ThreeDMaster\
+       ```
+  3. 重启 QuickLook。
 
 ## 🗂 支持的文件格式
 

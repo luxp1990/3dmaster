@@ -260,11 +260,13 @@ namespace QuickLook.Plugin.ThreeDMaster
                 CreateNoWindow = true
             };
 
+            string exeDir = Path.GetDirectoryName(exePath);
             string qtBin = @"D:\seer\3dmaster\qt6\6.8.2\msvc2022_64\bin";
             string occtBin = @"D:\seer\3dmaster\occt\win64\vc14\bin";
             string originalDir = @"D:\seer\3dmaster\3dmaster";
             string curPath = Environment.GetEnvironmentVariable("PATH") ?? "";
-            psi.EnvironmentVariables["PATH"] = $"{qtBin};{occtBin};{originalDir};{curPath}";
+            psi.EnvironmentVariables["PATH"] = $"{exeDir};{Path.Combine(exeDir, "platforms")};{qtBin};{occtBin};{originalDir};{curPath}";
+            psi.EnvironmentVariables["QT_QPA_PLATFORM_PLUGIN_PATH"] = Path.Combine(exeDir, "platforms");
 
             return Process.Start(psi);
         }

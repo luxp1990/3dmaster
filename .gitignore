@@ -25,9 +25,11 @@ qt6/
 Seer-sdk/
 .venv/
 
-# === 压缩包 ===
+# === 压缩包与打包输出 ===
 3rdparty.zip
 *.qlplugin
+*.zip
+dist/
 
 # === 临时脚本与文件 (Temp Scripts & Files) ===
 *.py
