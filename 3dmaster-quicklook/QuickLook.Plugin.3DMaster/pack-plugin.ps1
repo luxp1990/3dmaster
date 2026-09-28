@@ -1,4 +1,4 @@
-﻿$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Stop"
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $projectRoot = (Resolve-Path (Join-Path $scriptDir "..\..")).Path
@@ -64,15 +64,14 @@ foreach ($o in $occtDlls) {
     Copy-Item $src "$distDir\" -Force
 }
 
-Write-Host "[5/5] Generating archives..."
+Write-Host "[5/5] Generating archives with .NET ZipFile API..."
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+
 if (Test-Path $outputQlPlugin) { Remove-Item $outputQlPlugin -Force }
-$tempZip1 = [System.IO.Path]::ChangeExtension($outputQlPlugin, ".zip")
-if (Test-Path $tempZip1) { Remove-Item $tempZip1 -Force }
-Compress-Archive -Path "$distDir\*" -DestinationPath $tempZip1 -CompressionLevel Optimal
-Move-Item $tempZip1 $outputQlPlugin -Force
+[System.IO.Compression.ZipFile]::CreateFromDirectory($distDir, $outputQlPlugin, [System.IO.Compression.CompressionLevel]::Optimal, $false)
 
 if (Test-Path $outputZip) { Remove-Item $outputZip -Force }
-Compress-Archive -Path $distDir -DestinationPath $outputZip -CompressionLevel Optimal
+[System.IO.Compression.ZipFile]::CreateFromDirectory($distDir, $outputZip, [System.IO.Compression.CompressionLevel]::Optimal, $true)
 
 $qlSizeMB = [math]::Round((Get-Item $outputQlPlugin).Length / 1MB, 2)
 $zipSizeMB = [math]::Round((Get-Item $outputZip).Length / 1MB, 2)

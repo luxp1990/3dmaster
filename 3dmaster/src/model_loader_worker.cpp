@@ -298,7 +298,10 @@ void ModelLoaderWorker::startLoading() {
 
     if (!model || model->meshes.isEmpty()) {
         traceWorkerLog("startLoading: FAILED - model is null or meshes empty!");
-        emit sigFailed(QString("未能从 [%1] 解析出有效三维几何体，可能文件暂未包含网格面片或特征").arg(fileName));
+        QString finalErr = m_customErrorMessage.isEmpty()
+            ? QString("未能从 [%1] 解析出有效三维几何体，可能文件暂未包含网格面片或特征").arg(fileName)
+            : m_customErrorMessage;
+        emit sigFailed(finalErr);
         return;
     }
 
@@ -353,6 +356,8 @@ ModelDataPtr ModelLoaderWorker::parseModel(const QString& path) {
         success = parseGLTF(path, model);
     } else if (ext == "3mf") {
         success = parse3MF(path, model);
+    } else if (ext == "prt") {
+        success = parsePRT(path, model);
     } else {
         traceWorkerLog("parseModel: Unsupported extension '" + ext + "'");
         success = false;
@@ -2158,4 +2163,70 @@ bool ModelLoaderWorker::parse3MF(const QString& path, ModelDataPtr outModel) {
                    .arg(outModel->meshes.size()).arg(protoMeshes.size()));
     return !outModel->meshes.isEmpty();
 }
+
+bool ModelLoaderWorker::parsePRT(const QString& path, ModelDataPtr outModel) {
+    traceWorkerLog("parsePRT: Analyzing PRT binary header for " + path);
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly)) {
+        traceWorkerLog("parsePRT: Failed to open file " + path);
+        return false;
+    }
+
+    QByteArray header = file.read(512);
+    file.close();
+
+    // 格式识别魔数嗅探
+    bool isSiemensNX = false;
+    bool isCreo = false;
+
+    if (header.contains("UGII") || header.contains("hp7151") || header.contains("Sparc") || header.contains("OM_root_object")) {
+        isSiemensNX = true;
+    } else if (header.startsWith("#UGC::") || header.startsWith("#PRT") || header.contains("Creo") || header.contains("Pro/ENGINEER")) {
+        isCreo = true;
+    }
+
+    QString cadVendor = isSiemensNX ? "西门子 UG / Siemens NX" : (isCreo ? "PTC Creo / Pro-E" : "CAD 原生零件");
+
+    traceWorkerLog(QString("parsePRT: Identified vendor: %1 (isNX: %2, isCreo: %3)")
+                   .arg(cadVendor).arg(isSiemensNX).arg(isCreo));
+
+    // 检查本机是否安装了西门子 UG/NX 环境 (环境变量 UGII_BASE_DIR)
+    QString ugBaseDir = qEnvironmentVariable("UGII_BASE_DIR");
+    bool hasLocalNX = (!ugBaseDir.isEmpty() && QDir(ugBaseDir).exists());
+
+    // 构造专业的 CAD 专有格式引导提示
+    QString hintMsg;
+    if (isSiemensNX) {
+        if (hasLocalNX) {
+            hintMsg = QString(
+                "检测到【%1】专有零件格式 (.prt)\n"
+                "本机已检测到 UG/NX 安装目录: %2\n\n"
+                "💡 建议方案：\n"
+                "1. 在 UG/NX 中导出为 STEP (.stp) 或 JT 格式，即可享受秒级无损 3D 预览与全装配树交互\n"
+                "2. 3dmaster 正在开发本地 NX 静默转码桥接器，未来将支持自动后台解析"
+            ).arg(cadVendor, ugBaseDir);
+        } else {
+            hintMsg = QString(
+                "检测到【%1】专有零件格式 (.prt)\n"
+                "此格式为西门子私有闭源二进制容器 (Parasolid 内部数据流)\n\n"
+                "💡 快速预览建议：\n"
+                "请在设计端另存/导出为 STEP (.stp / .step) 或 IGES (.igs) 工业标准格式\n"
+                "3dmaster 将为您提供真实材质色彩、截面剖切、装配树与特征棱线的完整极速预览"
+            ).arg(cadVendor);
+        }
+    } else if (isCreo) {
+        hintMsg = QString(
+            "检测到【%1】专有零件格式 (.prt)\n"
+            "此格式为 PTC 私有闭源参数化模型文件\n\n"
+            "💡 快速预览建议：\n"
+            "请在 Creo 中导出为 STEP (.stp) 工业中性格式，即可在 3dmaster 中完整呈现"
+        ).arg(cadVendor);
+    } else {
+        hintMsg = "当前 .prt 文件为专有 CAD 封闭模型格式\n\n💡 建议在原 CAD 软件中导出为 STEP (.stp) 格式以在 3dmaster 中预览。";
+    }
+
+    m_customErrorMessage = hintMsg;
+    return false;
+}
+
 

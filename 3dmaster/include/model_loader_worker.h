@@ -41,6 +41,7 @@ private:
     bool parseGLTF(const QString& path, ModelDataPtr outModel);
     bool parse3MF(const QString& path, ModelDataPtr outModel);
     bool parseOFF(const QString& path, ModelDataPtr outModel);
+    bool parsePRT(const QString& path, ModelDataPtr outModel);
 
     // 通用 CAD 拓扑几何离散化与特征硬轮廓线提取 (STEP, IGES & GLTF 共享内核)
     bool processShapeTessellation(const TopoDS_Shape& shape,
@@ -65,5 +66,6 @@ private:
 
 private:
     QString m_filePath;
+    QString m_customErrorMessage;
     std::atomic<bool> m_cancelRequested{false};
 };

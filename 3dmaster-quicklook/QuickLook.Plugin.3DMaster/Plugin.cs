@@ -17,7 +17,8 @@ namespace QuickLook.Plugin.ThreeDMaster
             ".stl",
             ".obj",
             ".ply",
-            ".off"
+            ".off",
+            ".prt"
         };
 
         private Model3DViewerHost _host;

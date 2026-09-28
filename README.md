@@ -162,6 +162,7 @@ cd 3dmaster-quicklook/QuickLook.Plugin.3DMaster
 | OBJ | `.obj` | 内置解析器 |
 | PLY | `.ply` | 内置解析器 |
 | OFF | `.off` | 内置解析器 |
+| CAD 零件 | `.prt` | 智能魔数嗅探器（自动识别西门子 UG/NX 与 PTC Creo，专属引导面板与本地环境检测） |
 
 ## 📄 许可证
 

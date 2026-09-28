@@ -18,7 +18,8 @@
     "gltf",
     "glb",
     "3mf",
-    "off"
+    "off",
+    "prt"
   ],
   "appMinVersion": "4.2.9",
   "author": "3dmaster",

@@ -1287,14 +1287,15 @@ void MasterWidget::drawErrorMessage(QPainter& painter) {
     painter.setPen(QColor(245, 247, 250));
     painter.drawText(QRect(20, cy + 45, width() - 40, 28), Qt::AlignCenter, "模型加载提示");
 
-    // 详细信息
+    // 详细信息 (支持自适应多行 CAD 专业指导面板)
     QFont msgFont = painter.font();
     msgFont.setPointSize(10);
     msgFont.setBold(false);
     painter.setFont(msgFont);
-    painter.setPen(QColor(160, 175, 195));
-    QRect textRect(width() / 2 - 260, cy + 75, 520, 60);
-    painter.drawText(textRect, Qt::AlignCenter | Qt::TextWordWrap, m_errorMessage);
+    painter.setPen(QColor(170, 185, 205));
+    int boxW = std::min(width() - 80, 680);
+    QRect textRect(width() / 2 - boxW / 2, cy + 80, boxW, 160);
+    painter.drawText(textRect, Qt::AlignTop | Qt::AlignHCenter | Qt::TextWordWrap, m_errorMessage);
 }
 
 void MasterWidget::mousePressEvent(QMouseEvent* event) {
