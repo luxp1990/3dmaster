@@ -1,171 +1,72 @@
-# 3dmaster — 工业级 3D/CAD 模型预览插件
+# 3dmaster-seer 🚀
 
-<p align="center">
-  <strong>高性能 3D 模型预览插件，同时支持 <a href="https://github.com/ccseer/Seer">Seer</a> 文件预览器和 <a href="https://github.com/QL-Win/QuickLook">QuickLook</a> 快速预览</strong>
-</p>
+> **面向 Windows Seer 的工业级高性能 3D/CAD 模型空格极速预览插件**  
+> 支持 STEP、IGES、glTF、3MF、STL、OBJ、PLY 以及西门子 UG/NX 原生零件！
 
-## ✨ 功能特性
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Seer Plugin](https://img.shields.io/badge/Seer-Plugin-blue.svg)](https://1218.io)
+[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011%20(x64)-brightgreen.svg)]()
 
-- **广泛格式支持**：STEP (.stp/.step), IGES (.igs/.iges), glTF/GLB, 3MF, STL, OBJ, PLY, OFF
-- **真实材质色彩渲染**：自动提取 CAD 零件颜色，视线自适应双面光照
-- **装配体支持**：零件树状列表、独立显隐控制、隔离模式
-- **交互操作手感预设**：西门子 UG NX / SolidWorks / 通用 三种操控模式
-- **动态剖视**：X/Y/Z 三轴截面实时剖切
-- **辅助显示**：地面网格、坐标轴、线框、特征棱线、包围盒
-- **多种着色模式**：固有材质色、顶点色、工业白模、法线可视化
-- **异步加载**：多线程后台解析，不卡主界面
-- **暗色主题 UI**：紧凑型折叠侧边栏，可滚动自适应
+---
 
-## 🏗 项目架构
+## 🌟 核心特性 (Key Features)
 
-本项目采用 **Monorepo** 结构，两个插件共享核心 3D 渲染和模型加载代码：
+- ⚡ **无缝嵌入 Seer 宿主**：基于官方标准 Seer SDK 与 Qt6 C++ 原生动态库架构，纯内存级秒级调度，无任何 IPC 中转开销。
+- 🛠️ **全格式工业支持**：
+  - **STEP / STP** (`.step`, `.stp`)：完整装配树结构、材质固有色渲染与拓扑实体解析。
+  - **IGES / IGS** (`.iges`, `.igs`)：工业曲线曲面高保真缝合与几何特征呈现。
+  - **现代 3D 网格**：**glTF / GLB** (`.gltf`, `.glb`)、**3MF** (`.3mf`，支持多色与原型实例化)、**STL** (`.stl`)、**OBJ** (`.obj`)、**PLY** (`.ply`)、**OFF** (`.off`)。
+  - **UG/NX PRT** (`.prt`)：内置智能二进制嗅探。若本机装有 UG/NX，自动静默后台转码并启用 SHA-256 磁盘二级缓存（再次打开秒级加载）；若未安装则提供专业 CAD 导出导向卡片。
+- 📐 **专业 CAD 交互视口**：
+  - 黑色 CAD 特征棱线（CAD Edges）清晰勾勒。
+  - 动态三向截面剖切（Dynamic Section View），支持滑块平滑控制内部构造。
+  - 预设手感切换：**西门子 UG/NX**（中键旋转、左键平移）、**SolidWorks**（中键旋转、Ctrl+中键平移）、**通用模式**（右键旋转、中键平移）。
+  - 标准六向工程视图（前/后/左/右/俯/仰）一键切换与窗口自适应居中（Ctrl+F）。
+  - 右侧多层级零件装配树交互，支持单个零件独立显隐控制。
+  - 正交/透视投影无缝切换。
 
-```
-3dmaster/
-├── 3dmaster/                    # Seer 插件 (C++ DLL)
-│   ├── src/                     # 核心源码
-│   │   ├── master_widget.cpp    # ★ OpenGL 3D 视口 (共享)
-│   │   ├── master_sidebar.cpp   # ★ 侧边控制面板 (共享)
-│   │   ├── model_loader_worker.cpp # ★ CAD 模型加载 (共享)
-│   │   ├── master_viewer.cpp    # Seer 查看器容器
-│   │   └── plugin_entry.cpp     # Seer 插件入口
-│   ├── include/                 # 头文件
-│   └── test/                    # 测试程序
-│
-├── 3dmaster-quicklook/          # QuickLook 插件
-│   ├── 3dmaster-preview/        # C++ 守护进程 (嵌入 Win32 窗口)
-│   │   ├── src/
-│   │   │   ├── preview_main.cpp
-│   │   │   ├── preview_window.cpp
-│   │   │   └── ipc_server.cpp
-│   │   └── CMakeLists.txt
-│   └── QuickLook.Plugin.3DMaster/  # C# WPF 插件壳
-│       ├── Plugin.cs
-│       ├── Model3DViewerHost.cs    # HwndHost 嵌入
-│       └── DaemonClient.cs         # 命名管道 IPC
-│
-└── test_models/                 # 示例模型文件
-```
+---
 
-**核心设计**：QuickLook 守护进程直接编译 `3dmaster/src/` 中的共享源码（`master_widget.cpp`, `master_sidebar.cpp`, `model_loader_worker.cpp`），**零代码复制**，确保两个插件行为完全一致。
+## 📥 安装指南 (Installation)
 
-## 📋 前置依赖
+1. 从 Release 页面下载编译好的 `3dmaster.dll`、`plugin.json` 以及关联运行时库。
+2. 将插件文件夹放入 Seer 的插件目录中：
+   ```text
+   Seer安装目录\plugins\3dmaster\
+   ├── 3dmaster.dll
+   ├── plugin.json
+   └── 3dmaster.ini
+   ```
+3. 打开 Seer 设置 -> 插件列表，确保已启用 `3dmaster` 插件。
+4. 在文件资源管理器中选中任一支持的 3D 模型，按 **空格键** 即可立刻极速预览！
 
-| 依赖 | 版本 | 说明 |
-|------|------|------|
-| [Open CASCADE Technology (OCCT)](https://dev.opencascade.org/) | 8.0+ | CAD 内核，提供 STEP/IGES 解析和 BRep 离散化 |
-| [Qt 6](https://www.qt.io/) | 6.8+ | GUI 框架，提供 OpenGL Widget |
-| [Seer SDK](https://github.com/ccseer/Seer-sdk) | latest | Seer 插件接口（自动通过 CMake FetchContent 获取） |
-| [.NET SDK](https://dotnet.microsoft.com/) | 6.0+ | 编译 QuickLook C# 插件壳 |
-| [Visual Studio 2022](https://visualstudio.microsoft.com/) | 17.x | MSVC 编译器 + CMake |
-| [QuickLook](https://github.com/QL-Win/QuickLook) | latest | (仅 QuickLook 插件需要) |
+---
 
-### 依赖目录结构
+## 💻 编译构建 (Build from Source)
 
-将 OCCT 和 Qt6 放在与本仓库同级或仓库根目录下：
+### 环境依赖
+- Windows 10 / 11 (x64)
+- Visual Studio 2022 (MSVC v143, 支持 C++17)
+- Qt 6.8.2 (MSVC 2022 64-bit)
+- OpenCASCADE Technology (OCCT) 8.0.0
+- Seer SDK (位于 `Seer-sdk/` 目录或自动配置)
 
-```
-3dmaster/              # 本仓库根目录
-├── occt/              # OCCT 安装目录
-│   ├── inc/           # 头文件
-│   └── win64/vc14/lib/  # 链接库
-├── qt6/6.8.x/msvc2022_64/  # Qt6 安装目录
-└── ...
-```
-
-## 🔨 构建步骤
-
-### 1. Seer 插件 (`3dmaster.dll`)
-
+### 编译步骤
 ```powershell
-# 配置 (首次)
 cd 3dmaster
-cmake -B build -G "Visual Studio 17 2022" -A x64 `
-  -DCMAKE_PREFIX_PATH="D:/path/to/qt6/6.8.2/msvc2022_64"
-
-# 编译
-cmake --build build --config Release --target 3dmaster
-
-# 产出: build/Release/3dmaster.dll
+cmake -B build -G "Visual Studio 17 2022" -A x64
+cmake --build build --config Release
 ```
+编译产物 `3dmaster.dll` 将输出至 `build/Release/` 目录。
 
-### 2. QuickLook 插件
+---
 
-#### 2a. 构建 C++ 守护进程 (`3dmaster-preview.exe`)
+## 🤝 姐妹项目 (Sister Projects)
 
-```powershell
-cd 3dmaster-quicklook/3dmaster-preview
-cmake -B build -G "Visual Studio 17 2022" -A x64 `
-  -DCMAKE_PREFIX_PATH="D:/path/to/qt6/6.8.2/msvc2022_64"
+- 🔍 **[3dmaster-quicklook](https://github.com/luxp1990/3dmaster-quicklook)**：面向 Windows **QuickLook** 用户的 100% 绿色便携 3D/CAD 预览插件。
 
-cmake --build build --config Release --target 3dmaster-preview
+---
 
-# 产出: build/Release/3dmaster-preview.exe
-```
+## 📄 开源许可证 (License)
 
-#### 2b. 构建 C# 插件壳 (`QuickLook.Plugin.ThreeDMaster.dll`)
-
-```powershell
-cd 3dmaster-quicklook/QuickLook.Plugin.3DMaster
-dotnet build QuickLook.Plugin.3DMaster.csproj -c Release
-
-# 产出: bin/Release/QuickLook.Plugin.ThreeDMaster.dll
-```
-
-#### 2c. 打包 `.qlplugin` (可选)
-
-```powershell
-cd 3dmaster-quicklook/QuickLook.Plugin.3DMaster
-.\pack-plugin.ps1
-
-# 产出: ../QuickLook.Plugin.ThreeDMaster.qlplugin
-```
-
-## 📦 安装部署
-
-### Seer 插件
-
-1. 将 `3dmaster.dll` + OCCT 运行时 DLL (`TK*.dll`) + Qt6 运行时 DLL + `plugin.json` 放入 Seer 插件目录
-2. 重启 Seer
-
-### QuickLook 插件（独立便携，免环境配置）
-
-提供了两种分发包，包含完整的 Qt 6 与 OpenCASCADE 几何内核闭包，**在未安装任何开发环境、Qt 或 OCCT 的新电脑上均可直接使用**：
-
-- **方式一：`.qlplugin` 官方一键安装包**
-  1. 下载或打包生成 `QuickLook.Plugin.ThreeDMaster.qlplugin`。
-  2. 在文件资源管理器中选中该 `.qlplugin` 文件，按下 **空格键 (Space)**，点击出现的安装提示完成安装。
-  3. 重启 QuickLook 即可生效。
-
-- **方式二：便携压缩包手动解压**
-  1. 下载或打包生成 `QuickLook.Plugin.ThreeDMaster_Portable.zip`。
-  2. 解压其中的全部文件（包含 `QuickLook.Plugin.ThreeDMaster.dll`、`3dmaster-preview.exe`、`platforms/` 目录以及全部相关 DLL）至 QuickLook 插件目录：
-     - **Windows Store 版**：
-       ```
-       %LocalAppData%\Packages\21090PaddyXu.QuickLook_egxr34yet59cg\LocalCache\Roaming\pooi.moe\QuickLook\QuickLook.Plugin\QuickLook.Plugin.ThreeDMaster\
-       ```
-     - **普通安装版 / 便携版**：
-       ```
-       %AppData%\pooi.moe\QuickLook\QuickLook.Plugin\QuickLook.Plugin.ThreeDMaster\
-       ```
-  3. 重启 QuickLook。
-
-## 🗂 支持的文件格式
-
-| 格式 | 扩展名 | 引擎 |
-|------|--------|------|
-| STEP | `.stp`, `.step` | OCCT TKDESTEP |
-| IGES | `.igs`, `.iges` | OCCT TKDEIGES |
-| glTF | `.gltf`, `.glb` | OCCT TKDEGLTF |
-| 3MF | `.3mf` | Qt XML 解析 |
-| STL | `.stl` | 内置解析器 |
-| OBJ | `.obj` | 内置解析器 |
-| PLY | `.ply` | 内置解析器 |
-| OFF | `.off` | 内置解析器 |
-| CAD 零件 | `.prt` | 智能魔数嗅探器（自动识别西门子 UG/NX 与 PTC Creo，专属引导面板与本地环境检测） |
-
-## 📄 许可证
-
-本项目基于 [MIT License](LICENSE) 开源。
-
-本项目使用 [Open CASCADE Technology (OCCT)](https://dev.opencascade.org/)，其基于 LGPL-2.1 许可证发布。
+本项目采用 [MIT License](LICENSE) 许可证开源。
